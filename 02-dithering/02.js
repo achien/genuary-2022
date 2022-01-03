@@ -9,25 +9,25 @@ function setup() {
 function draw() {
   background("#000");
 
-  const sunX = 100;
-  const sunY = 100;
+  const sunX = 150;
+  const sunY = 150;
 
   // Colors from https://commons.wikimedia.org/wiki/File:MosqueinAbuja.jpg
   const radii = [
     // sun
-    { skyColor: "#fff", groundColor: "#fff", radius: 45 },
+    { color: "#fff", radius: 45 },
     // yellow
-    { skyColor: "#f4f0ca", groundColor: "#edf7d5", radius: 90 },
+    { color: "#f4f0ca", radius: 90 },
     // orange
-    { skyColor: "#f6cdaf", groundColor: "#f8cc9f", radius: 180 },
+    { color: "#f6cdaf", radius: 180 },
     // red
-    { skyColor: "#f2baab", groundColor: "#f2ae8b", radius: 270 },
+    { color: "#f2baab", radius: 270 },
     // red-gray
-    { skyColor: "#e5b8b2", groundColor: "#c8997d", radius: 360 },
+    { color: "#e5b8b2", radius: 360 },
     // red-grayer
-    { skyColor: "#bda5a5", groundColor: "#6f6e69", radius: 450 },
+    { color: "#bda5a5", radius: 450 },
     // gray
-    { skyColor: "#948a8b", groundColor: "#525f65", radius: 600 },
+    { color: "#948a8b", radius: 600 },
   ];
   const skyX = 240;
   const groundX = 450;
@@ -52,37 +52,19 @@ function draw() {
       const r2 = radii[Math.min(i, radii.length - 1)];
 
       // Calculate band based on radius
-      let rColor;
+      let color;
       if (r1.radius == r2.radius) {
-        rColor = r1;
+        color = r1.color;
       } else {
         // Fraction of distance covered between r1 and r2 zones
         const distCovered = (dist - r1.radius) / (r2.radius - r1.radius);
-        rColor = Math.random() < distCovered ? r2 : r1;
-      }
-      let color;
-      if (y <= skyX) {
-        color = rColor.skyColor;
-      } else if (y >= groundX) {
-        color = rColor.groundColor;
-      } else {
-        color =
-          Math.random() < (y - skyX) / (groundX - skyX)
-            ? rColor.groundColor
-            : rColor.skyColor;
+        color = Math.random() < distCovered ? r2.color : r1.color;
       }
 
       fill(color);
       square(x, y, scale);
     }
   }
-
-  fill(far);
-  rect(0, groundX, w, h);
-  fill(middle);
-  rect(0, groundMiddleX, w, h);
-  fill(near);
-  rect(0, groundNearX, w, h);
 
   noLoop();
 }
