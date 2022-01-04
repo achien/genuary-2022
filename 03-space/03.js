@@ -27,8 +27,9 @@ const METEOR_TRAIL_LENGTH = 250;
 
 let startTime;
 let lastMeteorCreated;
-let stars = Array(NUM_STARS);
 let meteors = [];
+
+let stars;
 
 function randNum(min, max) {
   return min + Math.random() * (max - min);
@@ -49,22 +50,6 @@ function pickStarColor() {
     // red
     return "e3573b";
   }
-}
-
-function setup() {
-  createCanvas(w, h);
-
-  for (let i = 0; i < NUM_STARS; i++) {
-    stars[i] = {
-      x: Math.random() * w,
-      y: Math.random() * h,
-      diameter: randNum(MIN_STAR_DIAMETER, MAX_STAR_DIAMETER),
-      color: pickStarColor(),
-    };
-  }
-
-  startTime = performance.now();
-  lastMeteorCreated = startTime;
 }
 
 function drawStar(star) {
@@ -89,6 +74,23 @@ function drawStar(star) {
     fill(starColor);
     circle(x, y, STAR_POINT_DIAMETER);
   }
+}
+
+function setup() {
+  createCanvas(w, h);
+
+  for (let i = 0; i < NUM_STARS; i++) {
+    drawStar({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      diameter: randNum(MIN_STAR_DIAMETER, MAX_STAR_DIAMETER),
+      color: pickStarColor(),
+    });
+  }
+  stars = get();
+
+  startTime = performance.now();
+  lastMeteorCreated = startTime;
 }
 
 function makeMeteor(now) {
@@ -168,9 +170,7 @@ function drawMeteor(meteor, now) {
 function draw() {
   background(SPACE_COLOR);
 
-  for (const star of stars) {
-    drawStar(star);
-  }
+  image(stars, 0, 0);
 
   // Prune all stale meteors
   const now = performance.now();
