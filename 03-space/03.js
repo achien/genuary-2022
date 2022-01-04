@@ -79,6 +79,8 @@ function drawStar(star) {
 function setup() {
   createCanvas(w, h);
 
+  background(SPACE_COLOR);
+
   for (let i = 0; i < NUM_STARS; i++) {
     drawStar({
       x: Math.random() * w,
@@ -168,8 +170,6 @@ function drawMeteor(meteor, now) {
 }
 
 function draw() {
-  background(SPACE_COLOR);
-
   image(stars, 0, 0);
 
   // Prune all stale meteors
