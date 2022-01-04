@@ -18,7 +18,7 @@ const MAX_METEOR_DY = 200;
 const MIN_METEOR_DURATION = 2000;
 const MAX_METEOR_DURATION = 5000;
 const METEOR_FADE_IN = 250;
-const METEOR_FADE_OUT = 250;
+const METEOR_FADE_OUT = 500;
 
 const METEOR_DIAMETER = 10;
 const METEOR_COLOR = "#fff";
@@ -94,21 +94,18 @@ function drawStar(star) {
 function makeMeteor(now) {
   return {
     created: now,
-    x: Math.random() * w,
-    y: Math.random() * h,
+    x: randNum(-50, w + 50),
+    // Bias y towards the top of the viewport so the meteors fall longer
+    y: Math.min(randNum(-50, h - 50), randNum(-50, h - 50)),
     dx: randNum(-MAX_METEOR_DX, MAX_METEOR_DX),
     dy: randNum(MIN_METEOR_DY, MAX_METEOR_DY),
     duration: randNum(MIN_METEOR_DURATION, MAX_METEOR_DURATION),
   };
 }
 
-function drawMeteor(meteor, now) {
-  const { created, x: initialX, y: initialY, dx, dy, duration } = meteor;
-  const x = initialX + (dx * (now - created)) / 1000;
-  const y = initialY + (dy * (now - created)) / 1000;
-
-  const elapsed = now - created;
-  const remaining = duration - elapsed;
+function meteorColorAt(meteor, time) {
+  const elapsed = time - meteor.created;
+  const remaining = meteor.duration - elapsed;
   let meteorColor = color(METEOR_COLOR);
   if (elapsed < METEOR_FADE_IN) {
     meteorColor = lerpColor(
@@ -123,6 +120,15 @@ function drawMeteor(meteor, now) {
       remaining / METEOR_FADE_OUT
     );
   }
+  return meteorColor;
+}
+
+function drawMeteor(meteor, now) {
+  const { created, x: initialX, y: initialY, dx, dy, duration } = meteor;
+  const x = initialX + (dx * (now - created)) / 1000;
+  const y = initialY + (dy * (now - created)) / 1000;
+
+  const meteorColor = meteorColorAt(meteor, now);
   drawStar({
     x,
     y,
@@ -131,16 +137,22 @@ function drawMeteor(meteor, now) {
   });
 
   // Draw the trail
-  const startTime = now - Math.min(METEOR_TRAIL_LENGTH, elapsed);
+  const startTime = now - Math.min(METEOR_TRAIL_LENGTH, now - created);
   const startX = initialX + (dx * (startTime - created)) / 1000;
   const startY = initialY + (dy * (startTime - created)) / 1000;
 
   // Draw segments to make a gradient
   const SEGMENTS = 10;
   for (let i = 1; i <= SEGMENTS; i++) {
+    // Calculate the meteor color when it passed over the segment, then
+    // fade it out based on age
+    const meteorColorAtSegment = meteorColorAt(
+      meteor,
+      startTime + ((i - 1) / SEGMENTS) * (now - startTime)
+    );
     const segmentColor = lerpColor(
       color(SPACE_COLOR),
-      color(meteorColor),
+      color(meteorColorAtSegment),
       i / SEGMENTS
     );
     stroke(segmentColor);
