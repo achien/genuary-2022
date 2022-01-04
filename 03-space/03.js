@@ -37,18 +37,15 @@ function randNum(min, max) {
 
 function pickStarColor() {
   const random = Math.random();
-  if (random < 0.1) {
+  if (random < 0.2) {
     // blue
     return "#c1e6f7";
-  } else if (random < 0.5) {
+  } else if (random < 0.7) {
     // white
     return "#fff";
-  } else if (random < 0.8) {
+  } else {
     // yellow
     return "#e8c764";
-  } else {
-    // red
-    return "e3573b";
   }
 }
 
