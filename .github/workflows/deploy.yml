@@ -10,11 +10,9 @@ jobs:
           node-version: "16"
       - run: npm ci
       - run: npm run build
-      - name: Move build output
-        run: |
-          git rm -r *
-          mv _site/* .
-          touch .nojekyll
+      - run: git rm -r *
+      - run: mv _site/* .
+      - run: touch .nojekyll
       - name: Commit changes and push
         run: |
           git config --global user.name 'achien'
