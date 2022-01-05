@@ -12,7 +12,7 @@ jobs:
       - run: npm run build
       - name: Move build output
         run: |
-          git rm *
+          git rm -r *
           mv _site/* .
           touch .nojekyll
       - name: Commit changes and push
