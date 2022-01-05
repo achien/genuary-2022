@@ -10,13 +10,13 @@ jobs:
           node-version: "16"
       - run: npm ci
       - run: npm run build
-      - run: git rm -r *
-      - run: mv _site/* .
-      - run: touch .nojekyll
       - name: Commit changes and push
         run: |
           git config --global user.name 'achien'
           git config --global user.email 'achien@users.noreply.github.com'
+          cd _site
+          git init
+          git remote add origin https://github.com/$GITHUB_REPOSITORY.git
           git add -A
           git commit -m 'Build site'
           git push -f origin HEAD:gh-pages
