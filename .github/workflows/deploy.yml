@@ -1,0 +1,18 @@
+name: Deploy
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - run: npm ci
+      - run: npm run build
+      - name: Commit changes and push
+        run: |
+          touch .nojekyll
+          git add -f _site .nojekyll
+          git commit -m 'Build site'
+          git push -f origin HEAD:gh-pages
