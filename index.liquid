@@ -8,7 +8,7 @@
     <h1>Genuary 2022</h1>
     {% for day in days reversed %}
     <p>
-      <a href="{{ day.url }}/">
+      <a href="{{ '/' | append: day.url | append: '/' | url }}">
         {{ day.date | formatDate }} - {{ day.description }}
       </a>
     </p>

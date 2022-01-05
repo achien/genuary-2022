@@ -6,4 +6,8 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addLiquidFilter("formatDate", (dateStr) =>
     dayjs(dateStr).format("MMM.D")
   );
+
+  return {
+    pathPrefix: "/genuary-2022/",
+  };
 };
