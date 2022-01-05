@@ -1,8 +1,15 @@
+---
+pagination:
+  data: days
+  size: 1
+  alias: day
+permalink: "{{ day.url }}/"
+---
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Jan.3 - Space</title>
+    <title>{{ day.date | formatDate }} - {{ day.title }}</title>
 
     <style>
       body {
@@ -16,10 +23,10 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
-    <script src="03.js"></script>
+    <script src="/js/{{ day.js }}"></script>
   </head>
   <body>
-    <p><a href="../index.html">[ Back ]</a></p>
+    <p><a href="/">[ Back ]</a></p>
     <main></main>
   </body>
 </html>
