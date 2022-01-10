@@ -19,5 +19,12 @@
     "title": "Space",
     "description": "Space.",
     "js": "03-space.js"
+  },
+  {
+    "url": "05-square",
+    "date": "2022-01-05",
+    "title": "Square",
+    "description": "Destroy a square.",
+    "js": "05-square.js"
   }
 ]
