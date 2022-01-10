@@ -19,6 +19,7 @@ const ERASER_COLORS = ["#f7ebec", "#ddbdd5", "#ac9fbb", "#59656f", "#1d1e2c"];
 let tick = 0;
 let remaining = GRID * GRID;
 let squares;
+let targeted;
 let erasers = [];
 
 function randInt(a, b) {
@@ -79,10 +80,13 @@ function initErasers() {
 
 function setup() {
   squares = Array(GRID);
+  targeted = Array(GRID);
   for (let i = 0; i < GRID; i++) {
     squares[i] = Array(GRID);
+    targeted[i] = Array(GRID);
     for (let j = 0; j < GRID; j++) {
       squares[i][j] = true;
+      targeted[i][j] = null;
     }
   }
   initErasers();
@@ -95,11 +99,34 @@ function setup() {
   square(S_OFFSET_X, S_OFFSET_Y, S, ERASER_DIAM / 2);
 }
 
-function aim(eraser) {
-  const { r, c } = eraser;
+function canTarget(eraser, r, c) {
+  if (!squares[r][c]) {
+    // Square is alredy erased
+    return false;
+  }
+
+  if (targeted[r][c] !== null) {
+    // Can steal the target if this eraser is closer
+    const other = targeted[r][c];
+    const thisDist = Math.abs(eraser.r - r) + Math.abs(eraser.c - c);
+    const otherDist = Math.abs(other.r - r) + Math.abs(other.c - c);
+    return thisDist < otherDist;
+  }
+
+  return true;
+}
+
+function retarget(eraser, depth = 0) {
+  if (depth > 1000) {
+    // Something has gone horribly wrong and we are endlessly retargeting erasers
+    console.error("Retargeting loop", eraser.r, eraser.c);
+    return;
+  }
+
+  const { r, c, targetR, targetC } = eraser;
 
   // 1. Pick a target square if necessary
-  if (!squares[eraser.targetR][eraser.targetC]) {
+  if (!squares[targetR][targetC] || targeted[targetR][targetC] !== eraser) {
     let eligible = [];
     for (let radius = 1; radius <= 2 * GRID; radius++) {
       // Check eligibility of all squares Manhattan distance radius from eraser
@@ -109,14 +136,14 @@ function aim(eraser) {
         }
         const dcRight = radius - Math.abs(dr);
         const dcLeft = -dcRight;
-        if (c + dcLeft >= 0 && squares[r + dr][c + dcLeft]) {
+        if (c + dcLeft >= 0 && canTarget(eraser, r + dr, c + dcLeft)) {
           eligible.push([r + dr, c + dcLeft]);
         }
         // Check right square if it is different from the left
         if (
           dcRight != 0 &&
           c + dcRight < GRID &&
-          squares[r + dr][c + dcRight]
+          canTarget(eraser, r + dr, c + dcRight)
         ) {
           eligible.push([r + dr, c + dcRight]);
         }
@@ -126,18 +153,28 @@ function aim(eraser) {
       }
     }
     if (!eligible.length) {
-      // Uh oh
-      console.error(`Could not find any targets from (r,c)=(${r}, ${c})`);
+      // We're out of targets
       eraser.targetR = r;
       eraser.targetC = c;
       eraser.dx = 0;
       eraser.dy = 0;
       return;
     }
-    const target = eligible[randInt(0, eligible.length - 1)];
-    eraser.targetR = target[0];
-    eraser.targetC = target[1];
-    // console.log(`Retargeting: (${r}, ${c}) => (${target[0]}, ${target[1]})`);
+    targeted[eraser.targetR][eraser.targetC] = null;
+    const [newTargetR, newTargetC] = eligible[randInt(0, eligible.length - 1)];
+    eraser.targetR = newTargetR;
+    eraser.targetC = newTargetC;
+    if (targeted[newTargetR][newTargetC] !== null) {
+      // If we steal a target, retarget the other eraser.  I have no idea
+      // if this can infinite loop or not so let's introduce a depth paramter
+      // to prevent it from doing so even though I don't think it can.
+      const other = targeted[newTargetR][newTargetC];
+      targeted[newTargetR][newTargetC] = eraser;
+      retarget(other, depth + 1);
+    } else {
+      targeted[newTargetR][newTargetC] = eraser;
+    }
+    // console.log(`Retargeting: (${r}, ${c}) => (${newTargetR}, ${newTargetC})`);
   }
 
   // 2. Pick a direction to travel in
@@ -181,7 +218,7 @@ function draw() {
     }
 
     for (const eraser of erasers) {
-      aim(eraser);
+      retarget(eraser);
     }
   }
 
@@ -192,9 +229,16 @@ function draw() {
   }
 
   // Move all erasers
+  let moved = false;
   for (const eraser of erasers) {
     eraser.x += eraser.dx;
     eraser.y += eraser.dy;
+    moved = moved || eraser.dx !== 0 || eraser.dy !== 0;
+  }
+  if (!moved) {
+    console.log("No erasers moved.");
+    noLoop();
+    return;
   }
 
   // noFill();
