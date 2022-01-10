@@ -14,7 +14,10 @@ const BG_COLOR = "#000";
 const SQ_COLOR = "#fff";
 const ERASER_COLOR = "#aa0055";
 
-const ERASER_COLORS = ["#f7ebec", "#ddbdd5", "#ac9fbb", "#59656f", "#1d1e2c"];
+// const ERASER_COLORS = ["#f7ebec", "#ddbdd5", "#ac9fbb", "#59656f", "#1d1e2c"];
+const ERASER_COLORS = ["#2b3a67", "#496a81", "#66999b", "#b3af8f", "#ffc482"];
+// const ERASER_COLORS = ["#586ba4", "#324376", "#f5dd90", "#f68e5f", "#f76c5e"];
+// const ERASER_COLORS = ["#8b1e3f", "#3c153b", "#89bd9e", "#f0c987", "#db4c40"];
 
 let tick = 0;
 let remaining = GRID * GRID;
